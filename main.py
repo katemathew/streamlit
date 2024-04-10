@@ -1,53 +1,61 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
 
-# Load car data
-data = pd.read_csv("car_data.csv")
+st.title('Hello Streamlit!')
+st.write('If you see this message, your setup works.')
 
-# Define filter functions
-def filter_by_car_name(df, car_name):
+# Load the dataset
+car_data = pd.read_csv('car_data.csv')
+
+# Setup the sidebar
+# a. Text box for car name input
+car_name = st.sidebar.text_input('Car Name')
+
+# b. Multiselect for choosing between Manual and/or Automatic
+transmission_choice = st.sidebar.multiselect('Choose Transmission Type', 
+                                             ['Manual', 'Automatic'], 
+                                             default=['Manual', 'Automatic'])
+
+# c. Slider for selling price range
+selling_price_range = st.sidebar.slider('Selling Price Range', 
+                                        min_value=0, 
+                                        max_value=20, 
+                                        value=(0, 20))
+
+# d. Slider for year range
+year_range = st.sidebar.slider('Year Range', 
+                               min_value=2000, 
+                               max_value=2024, 
+                               value=(2000, 2024))
+
+# e. Submit button
+submit = st.sidebar.button('Submit')
+
+# Filter data based on selections
+def filter_data(data, car_name, transmission_choice, selling_price_range, year_range):
+    filtered_data = data
+    
+    # Filter by car name if specified
     if car_name:
-        return df[df["car_name"].str.lower().contains(car_name.lower())]
-    return df
+        filtered_data = filtered_data[filtered_data['Car_Name'].str.contains(car_name, case=False)]
+    
+    # Filter by transmission type
+    if transmission_choice:
+        filtered_data = filtered_data[filtered_data['Transmission'].isin(transmission_choice)]
+    
+    # Filter by selling price range
+    filtered_data = filtered_data[(filtered_data['Selling_Price'] >= selling_price_range[0]) & 
+                                  (filtered_data['Selling_Price'] <= selling_price_range[1])]
+    
+    # Filter by year range
+    filtered_data = filtered_data[(filtered_data['Year'] >= year_range[0]) & 
+                                  (filtered_data['Year'] <= year_range[1])]
+    
+    return filtered_data
 
-def filter_by_transmission(df, selected_options):
-    if len(selected_options) == 0:
-        return df
-    return df[df["transmission"].isin(selected_options)]
-
-def filter_by_price_range(df, min_price, max_price):
-    return df[(df["selling_price"] >= min_price) & (df["selling_price"] <= max_price)]
-
-def filter_by_year_range(df, min_year, max_year):
-    return df[(df["year"] >= min_year) & (df["year"] <= max_year)]
-
-# Sidebar filters
-st.sidebar.header("Car Filters")
-
-car_name = st.sidebar.text_input("Car Name (Optional)")
-
-transmission_options = ["Manual", "Automatic"]
-selected_transmission = st.sidebar.multiselect("Transmission", transmission_options, default=transmission_options)
-
-price_min, price_max = st.sidebar.slider(
-    "Selling Price Range", min_value=0, max_value=data["selling_price"].max(), value=(0, 20)
-)
-
-year_min, year_max = st.sidebar.slider(
-    "Year Range", min_value=2000, max_value=2024, value=(2000, 2024)
-)
-
-# Apply filters
-filtered_data = data.copy()
-filtered_data = filter_by_car_name(filtered_data, car_name)
-filtered_data = filter_by_transmission(filtered_data, selected_transmission)
-filtered_data = filter_by_price_range(filtered_data, price_min, price_max)
-filtered_data = filter_by_year_range(filtered_data, year_min, year_max)
-
-# Display data on main screen
-st.header("Filtered Cars")
-if filtered_data.empty:
-    st.write("No cars found matching the filters.")
+if submit:
+    # Show filtered data
+    st.write(filter_data(car_data, car_name, transmission_choice, selling_price_range, year_range))
 else:
-    st.dataframe(filtered_data)
-
+    # Show original data
+    st.write(car_data)
