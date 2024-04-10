@@ -1,13 +1,14 @@
 import streamlit as st
 import pandas as pd
 
-print(car_data.columns)
-
 st.title('Hello Streamlit!')
 st.write('If you see this message, your setup works.')
 
 # Load the dataset
 car_data = pd.read_csv('car_data.csv')
+
+# Correct placement: Print the column names after loading the data
+print(car_data.columns)
 
 # Setup the sidebar
 # a. Text box for car name input
