@@ -12,7 +12,8 @@ except FileNotFoundError:
 def filter_data(car_name, transmission_type, selling_price_range, year_range):
     filtered_data = data
     if car_name:
-        filtered_data = filtered_data[filtered_data['Car_Name'].str.contains(Car_Name, case=False)]
+        # Corrected from Car_Name to car_name
+        filtered_data = filtered_data[filtered_data['Car_Name'].str.contains(car_name, case=False)]
     if transmission_type:
         filtered_data = filtered_data[filtered_data['Transmission'].isin(transmission_type)]
     filtered_data = filtered_data[
