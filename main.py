@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 
+print(car_data.columns)
+
 st.title('Hello Streamlit!')
 st.write('If you see this message, your setup works.')
 
